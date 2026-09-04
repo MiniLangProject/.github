@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "profile" / "assets"
 OUTPUT = ASSETS / "social-previews"
 BACKGROUND = ASSETS / "social-preview-background.png"
+ORGANIZATION_HERO_SOURCE = ASSETS / "minilang-project-hero-source.png"
 WIDTH = 1280
 HEIGHT = 640
 
@@ -132,6 +133,13 @@ def base_image() -> Image.Image:
 def build(name: str, data: tuple[str, str, str, tuple[str, ...]]) -> Path:
     """Render one repository preview with exact project text and shared styling."""
 
+    if name == "MiniLangProject":
+        target = ASSETS / "minilang-project-hero.jpg"
+        image = Image.open(ORGANIZATION_HERO_SOURCE).convert("RGB")
+        image = image.resize((WIDTH, HEIGHT), Image.Resampling.LANCZOS)
+        image.save(target, "JPEG", quality=92, optimize=True, progressive=True)
+        return target
+
     eyebrow, title, subtitle, tags = data
     image = base_image()
     draw = ImageDraw.Draw(image, "RGBA")
@@ -151,8 +159,8 @@ def build(name: str, data: tuple[str, str, str, tuple[str, ...]]) -> Path:
 
     draw.text((70, 554), "github.com/MiniLangProject", font=font("segoeui.ttf", 20), fill=(129, 180, 216, 255))
 
-    output_name = "minilang-project-hero.jpg" if name == "MiniLangProject" else f"{name}.jpg"
-    target = ASSETS / output_name if name == "MiniLangProject" else OUTPUT / output_name
+    output_name = f"{name}.jpg"
+    target = OUTPUT / output_name
     target.parent.mkdir(parents=True, exist_ok=True)
     image.convert("RGB").save(target, "JPEG", quality=90, optimize=True, progressive=True)
     return target
